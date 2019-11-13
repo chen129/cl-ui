@@ -18,7 +18,11 @@ Vue.use(CLUI)
 
 ## 按需引入
 - 借助插件 [babel-plugin-import](https://github.com/ant-design/babel-plugin-import)可以实现按需加载组件，减少文件体积。首先安装，并在文件 babel.config.js 中配置：
-- npm install babel-plugin-import --save-dev
+
+```
+npm install babel-plugin-import --save-dev
+```
+
 ```javascript
 // babel.config.js
 module.exports = {
