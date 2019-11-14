@@ -38,4 +38,6 @@ import { Hello } from '@chen129/cl-ui'
 import '@chen129/cl-ui/package/index.css'
 
 Vue.component(Hello.name, Hello)
+//or
+Vue.use(Hello)
 ```

@@ -2,6 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <Hello />
+    <cl-count-up @click="onClick" :value="1000" loop />
     <p>
       For a guide and recipes on how to configure / customize this project,
       <br>check out the
@@ -80,6 +81,11 @@ export default {
   data () {
     return {
       a: 1
+    }
+  },
+  methods: {
+    onClick (ev) {
+      console.log(ev)
     }
   }
 }

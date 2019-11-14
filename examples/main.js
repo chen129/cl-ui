@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import App from './App.vue'
-import clUi from '../src/index'
+import CLUI from '../src/index'
 
-Vue.use(clUi)
+import '../src/styles/index.less'
+
+Vue.use(CLUI)
 
 Vue.config.productionTip = false
 
