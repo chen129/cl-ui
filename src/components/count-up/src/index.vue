@@ -64,8 +64,10 @@ export default {
       }, this.interval)
     },
     upDate (value) {
-      this.countUp.pauseResume()
-      this.countUp.update(value)
+      if (this.countUp) {
+        this.countUp.pauseResume()
+        this.countUp.update(value)
+      }
     },
     handleClick (ev) {
       this.$emit('click', ev)
