@@ -2,7 +2,7 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <Hello />
-    <cl-count-up @click="onClick" :value="1000" loop />
+    <cl-count-up class="count-up" @click="onClick" :value="1000" loop />
     <p>
       For a guide and recipes on how to configure / customize this project,
       <br>check out the
@@ -93,6 +93,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
+.count-up {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
 h3 {
   margin: 40px 0 0;
 }
