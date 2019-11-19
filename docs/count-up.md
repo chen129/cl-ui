@@ -41,7 +41,7 @@ export default {
 | tag | 渲染为指定标签 | string | span |
 | startVal | 开始数值 | number | 0 |
 | loop | 是否循环滚动 | boolean | false |
-| interval | 循环滚动间隔时间，仅在loop模式下有效 | number | 50000 |
+| interval | 循环滚动间隔时间，仅在loop模式下有效 | number | 5000 |
 | separator | 分组分隔符，在使用format时无效 | string | , |
 | prefix | 前置文本，在使用format时无效 | string |  |
 | suffix | 后置文本，在使用format时无效 | string |  |
