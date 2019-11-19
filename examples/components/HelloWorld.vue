@@ -3,11 +3,13 @@
     <h1>{{ msg }}</h1>
     <Hello />
     <count-up />
+    <scroll />
   </div>
 </template>
 
 <script>
 import CountUp from './CountUp'
+import Scroll from './Scroll'
 
 export default {
   name: 'HelloWorld',
@@ -25,7 +27,8 @@ export default {
     }
   },
   components: {
-    CountUp
+    CountUp,
+    Scroll
   }
 }
 </script>
