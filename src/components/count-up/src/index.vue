@@ -58,9 +58,10 @@ export default {
         : this.countUp.start()
     },
     methodToCallOnComplete () {
-      this.timer = window.setInterval(() => {
+      if (this.timer) window.clearTimeout(this.timer)
+      this.timer = window.setTimeout(() => {
         this.countUp.reset()
-        this.countUp.start()
+        this.countUp.start(this.methodToCallOnComplete)
       }, this.interval)
     },
     upDate (value) {

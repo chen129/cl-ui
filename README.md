@@ -7,13 +7,11 @@ npm install @chen129/cl-ui --seave
 
 ## :beers: 引入 cl-ui
 ```javascript
-...
 import CLUI  from '@chen129/cl-ui'
 
 import '@chen129/cl-ui/package/index.css'
 
 Vue.use(CLUI)
-...
 ```
 
 ## :hammer: 按需引入
@@ -41,3 +39,5 @@ Vue.component(Hello.name, Hello)
 //or
 Vue.use(Hello)
 ```
+## :penguin: 文档
+- [CountUp 数字累加](./docs/count-up.md)
