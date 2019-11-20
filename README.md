@@ -41,3 +41,4 @@ Vue.use(Hello)
 ```
 ## :penguin: 文档
 - [CountUp 数字累加](./docs/count-up.md)
+- [Scroll 无缝滚动](./docs/scroll.md)
