@@ -1,4 +1,4 @@
-## :lollipop: CountUP 数字累加
+## :lollipop: Scroll 无缝滚动
 用于无缝滚动展示
 ### 基本用法
 ```html
