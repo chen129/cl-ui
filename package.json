@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "private": false,
   "author": "chen129",
-  "main": "package/index.umd.js",
+  "main": "package/index.umd.min.js",
   "files": [
     "src",
     "package"

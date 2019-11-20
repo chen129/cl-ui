@@ -32,5 +32,6 @@ module.exports = {
       .resolve
       .alias
       .set('components', resolve('src/components'))
+      .set('utils', resolve('src/utils'))
   }
 }

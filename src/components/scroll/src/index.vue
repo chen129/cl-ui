@@ -10,6 +10,7 @@ export default {
       type: String,
       default: 'div'
     },
+    data: null,
     direction: {
       type: String,
       default: VERTICAL,
@@ -22,6 +23,17 @@ export default {
       default: 40
     }
   },
+  watch: {
+    data: {
+      handler (value, oldValue) {
+        this.scrollX = this.scrollY = 0
+        this.$nextTick(() => {
+          this.init()
+        })
+      },
+      deep: true
+    }
+  },
   data () {
     return {
       copyEl: false,
@@ -32,38 +44,75 @@ export default {
   computed: {
     pos () {
       return {
-        transform: `translate3d(-${this.scrollX}px, -${this.scrollY}px, 0)`,
-        overflow: 'hidden'
+        transform: `translate3d(-${this.scrollX}px, -${this.scrollY}px, 0)`
       }
     }
+  },
+  created () {
+    this.initVal = 0
+    this.wrapperSize = 0
   },
   mounted () {
     this.init()
   },
   methods: {
     init () {
+      this.stop()
       const el = this.$refs.clScroll
-      let wrapperSize = this.direction === HORIZONTAL ? el.clientWidth : el.clientHeight
+      const { marginTop, marginLeft } = getComputedStyle(el, null)
+      this.wrapperSize = this.direction === HORIZONTAL
+        ? el.scrollWidth + parseInt(marginLeft)
+        : el.clientHeight + parseInt(marginTop)
+      this._setOverflow(el.parentNode)
       if (this.direction === HORIZONTAL) {
-
-      } else {
-        let parentHeight = el.parentNode.clientHeight
-        if (wrapperSize > parentHeight) {
+        let parentWidth = el.parentNode.clientWidth
+        if (this.wrapperSize > parentWidth) {
           this.copyEl = true
-          this._scrollYFn(wrapperSize)
+          this.initVal = parseInt(marginLeft)
+          this._scrollXFn()
         } else {
           this.copyEl = false
+          this.initVal = 0
+        }
+      } else {
+        let parentHeight = el.parentNode.clientHeight
+        if (this.wrapperSize > parentHeight) {
+          this.copyEl = true
+          this.initVal = parseInt(marginTop)
+          this._scrollYFn()
+        } else {
+          this.copyEl = false
+          this.initVal = 0
         }
       }
     },
-    _scrollYFn (size) {
+    stop () {
+      this.timer && window.clearInterval(this.timer)
+    },
+    goOn () {
+      this.direction === HORIZONTAL
+        ? this._scrollXFn()
+        : this._scrollYFn()
+    },
+    _scrollYFn () {
       this.timer = window.setInterval(() => {
-        this.scrollY = this.scrollY >= size ? 0 : this.scrollY + 1
+        this.scrollY = this.scrollY >= this.wrapperSize ? this.initVal : this.scrollY + 1
       }, this.speed)
+    },
+    _scrollXFn () {
+      this.timer = window.setInterval(() => {
+        this.scrollX = this.scrollX >= this.wrapperSize ? this.initVal : this.scrollX + 1
+      }, this.speed)
+    },
+    _setOverflow (el) {
+      const { overflow } = getComputedStyle(el, null)
+      if (overflow !== 'hidden') {
+        el.style.overflow = 'hidden'
+      }
     }
   },
   beforeDestroy () {
-    this.timer && window.setInterval(this.timer)
+    this.stop()
   },
   render (h) {
     function slotsDefaultEl () {
@@ -79,7 +128,11 @@ export default {
           `${prefixCls}-${this.direction}`
         ],
         style: this.pos,
-        ref: 'clScroll'
+        ref: 'clScroll',
+        on: {
+          mouseenter: this.stop,
+          mouseleave: this.goOn
+        }
       },
       [
         this.$slots.default,

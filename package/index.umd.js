@@ -200,6 +200,30 @@ module.exports = !DESCRIPTORS && !fails(function () {
 
 /***/ }),
 
+/***/ "0d03":
+/***/ (function(module, exports, __webpack_require__) {
+
+var redefine = __webpack_require__("6eeb");
+
+var DatePrototype = Date.prototype;
+var INVALID_DATE = 'Invalid Date';
+var TO_STRING = 'toString';
+var nativeDateToString = DatePrototype[TO_STRING];
+var getTime = DatePrototype.getTime;
+
+// `Date.prototype.toString` method
+// https://tc39.github.io/ecma262/#sec-date.prototype.tostring
+if (new Date(NaN) + '' != INVALID_DATE) {
+  redefine(DatePrototype, TO_STRING, function toString() {
+    var value = getTime.call(this);
+    // eslint-disable-next-line no-self-compare
+    return value === value ? nativeDateToString.call(this) : INVALID_DATE;
+  });
+}
+
+
+/***/ }),
+
 /***/ "159b":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -437,6 +461,39 @@ var hiddenKeys = enumBugKeys.concat('length', 'prototype');
 exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
   return internalObjectKeys(O, hiddenKeys);
 };
+
+
+/***/ }),
+
+/***/ "25f0":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var redefine = __webpack_require__("6eeb");
+var anObject = __webpack_require__("825a");
+var fails = __webpack_require__("d039");
+var flags = __webpack_require__("ad6d");
+
+var TO_STRING = 'toString';
+var RegExpPrototype = RegExp.prototype;
+var nativeToString = RegExpPrototype[TO_STRING];
+
+var NOT_GENERIC = fails(function () { return nativeToString.call({ source: 'a', flags: 'b' }) != '/a/b'; });
+// FF44- RegExp#toString has a wrong name
+var INCORRECT_NAME = nativeToString.name != TO_STRING;
+
+// `RegExp.prototype.toString` method
+// https://tc39.github.io/ecma262/#sec-regexp.prototype.tostring
+if (NOT_GENERIC || INCORRECT_NAME) {
+  redefine(RegExp.prototype, TO_STRING, function toString() {
+    var R = anObject(this);
+    var p = String(R.source);
+    var rf = R.flags;
+    var f = String(rf === undefined && R instanceof RegExp && !('flags' in RegExpPrototype) ? flags.call(R) : rf);
+    return '/' + p + '/' + f;
+  }, { unsafe: true });
+}
 
 
 /***/ }),
@@ -1394,6 +1451,74 @@ module.exports = isForced;
 
 /***/ }),
 
+/***/ "99af":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var fails = __webpack_require__("d039");
+var isArray = __webpack_require__("e8b5");
+var isObject = __webpack_require__("861d");
+var toObject = __webpack_require__("7b0b");
+var toLength = __webpack_require__("50c4");
+var createProperty = __webpack_require__("8418");
+var arraySpeciesCreate = __webpack_require__("65f0");
+var arrayMethodHasSpeciesSupport = __webpack_require__("1dde");
+var wellKnownSymbol = __webpack_require__("b622");
+var V8_VERSION = __webpack_require__("60ae");
+
+var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
+var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
+
+// We can't use this feature detection in V8 since it causes
+// deoptimization and serious performance degradation
+// https://github.com/zloirock/core-js/issues/679
+var IS_CONCAT_SPREADABLE_SUPPORT = V8_VERSION >= 51 || !fails(function () {
+  var array = [];
+  array[IS_CONCAT_SPREADABLE] = false;
+  return array.concat()[0] !== array;
+});
+
+var SPECIES_SUPPORT = arrayMethodHasSpeciesSupport('concat');
+
+var isConcatSpreadable = function (O) {
+  if (!isObject(O)) return false;
+  var spreadable = O[IS_CONCAT_SPREADABLE];
+  return spreadable !== undefined ? !!spreadable : isArray(O);
+};
+
+var FORCED = !IS_CONCAT_SPREADABLE_SUPPORT || !SPECIES_SUPPORT;
+
+// `Array.prototype.concat` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.concat
+// with adding support of @@isConcatSpreadable and @@species
+$({ target: 'Array', proto: true, forced: FORCED }, {
+  concat: function concat(arg) { // eslint-disable-line no-unused-vars
+    var O = toObject(this);
+    var A = arraySpeciesCreate(O, 0);
+    var n = 0;
+    var i, k, length, len, E;
+    for (i = -1, length = arguments.length; i < length; i++) {
+      E = i === -1 ? O : arguments[i];
+      if (isConcatSpreadable(E)) {
+        len = toLength(E.length);
+        if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+        for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
+      } else {
+        if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+        createProperty(A, n++, E);
+      }
+    }
+    A.length = n;
+    return A;
+  }
+});
+
+
+/***/ }),
+
 /***/ "9a13":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2026,6 +2151,52 @@ if (isForced(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumb
 
 /***/ }),
 
+/***/ "ad6d":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var anObject = __webpack_require__("825a");
+
+// `RegExp.prototype.flags` getter implementation
+// https://tc39.github.io/ecma262/#sec-get-regexp.prototype.flags
+module.exports = function () {
+  var that = anObject(this);
+  var result = '';
+  if (that.global) result += 'g';
+  if (that.ignoreCase) result += 'i';
+  if (that.multiline) result += 'm';
+  if (that.dotAll) result += 's';
+  if (that.unicode) result += 'u';
+  if (that.sticky) result += 'y';
+  return result;
+};
+
+
+/***/ }),
+
+/***/ "b041":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var classof = __webpack_require__("f5df");
+var wellKnownSymbol = __webpack_require__("b622");
+
+var TO_STRING_TAG = wellKnownSymbol('toStringTag');
+var test = {};
+
+test[TO_STRING_TAG] = 'z';
+
+// `Object.prototype.toString` method implementation
+// https://tc39.github.io/ecma262/#sec-object.prototype.tostring
+module.exports = String(test) !== '[object z]' ? function toString() {
+  return '[object ' + classof(this) + ']';
+} : test.toString;
+
+
+/***/ }),
+
 /***/ "b0c0":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2298,6 +2469,34 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "c975":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var $ = __webpack_require__("23e7");
+var $indexOf = __webpack_require__("4d64").indexOf;
+var sloppyArrayMethod = __webpack_require__("b301");
+
+var nativeIndexOf = [].indexOf;
+
+var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
+var SLOPPY_METHOD = sloppyArrayMethod('indexOf');
+
+// `Array.prototype.indexOf` method
+// https://tc39.github.io/ecma262/#sec-array.prototype.indexof
+$({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || SLOPPY_METHOD }, {
+  indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
+    return NEGATIVE_ZERO
+      // convert -0 to +0
+      ? nativeIndexOf.apply(this, arguments) || 0
+      : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
+  }
+});
+
+
+/***/ }),
+
 /***/ "ca84":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2460,6 +2659,23 @@ module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
 
 /***/ }),
 
+/***/ "d3b7":
+/***/ (function(module, exports, __webpack_require__) {
+
+var redefine = __webpack_require__("6eeb");
+var toString = __webpack_require__("b041");
+
+var ObjectPrototype = Object.prototype;
+
+// `Object.prototype.toString` method
+// https://tc39.github.io/ecma262/#sec-object.prototype.tostring
+if (toString !== ObjectPrototype.toString) {
+  redefine(ObjectPrototype, 'toString', toString, { unsafe: true });
+}
+
+
+/***/ }),
+
 /***/ "d44e":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2555,6 +2771,21 @@ module.exports = function (it) {
 
 /***/ }),
 
+/***/ "e25e":
+/***/ (function(module, exports, __webpack_require__) {
+
+var $ = __webpack_require__("23e7");
+var parseIntImplementation = __webpack_require__("e583");
+
+// `parseInt` method
+// https://tc39.github.io/ecma262/#sec-parseint-string-radix
+$({ global: true, forced: parseInt != parseIntImplementation }, {
+  parseInt: parseIntImplementation
+});
+
+
+/***/ }),
+
 /***/ "e439":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2574,6 +2805,27 @@ $({ target: 'Object', stat: true, forced: FORCED, sham: !DESCRIPTORS }, {
     return nativeGetOwnPropertyDescriptor(toIndexedObject(it), key);
   }
 });
+
+
+/***/ }),
+
+/***/ "e583":
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__("da84");
+var trim = __webpack_require__("58a8").trim;
+var whitespaces = __webpack_require__("5899");
+
+var nativeParseInt = global.parseInt;
+var hex = /^[+-]?0[Xx]/;
+var FORCED = nativeParseInt(whitespaces + '08') !== 8 || nativeParseInt(whitespaces + '0x16') !== 22;
+
+// `parseInt` method
+// https://tc39.github.io/ecma262/#sec-parseint-string-radix
+module.exports = FORCED ? function parseInt(string, radix) {
+  var S = trim(String(string));
+  return nativeParseInt(S, (radix >>> 0) || (hex.test(S) ? 16 : 10));
+} : nativeParseInt;
 
 
 /***/ }),
@@ -2608,6 +2860,38 @@ var classof = __webpack_require__("c6b6");
 // https://tc39.github.io/ecma262/#sec-isarray
 module.exports = Array.isArray || function isArray(arg) {
   return classof(arg) == 'Array';
+};
+
+
+/***/ }),
+
+/***/ "f5df":
+/***/ (function(module, exports, __webpack_require__) {
+
+var classofRaw = __webpack_require__("c6b6");
+var wellKnownSymbol = __webpack_require__("b622");
+
+var TO_STRING_TAG = wellKnownSymbol('toStringTag');
+// ES3 wrong here
+var CORRECT_ARGUMENTS = classofRaw(function () { return arguments; }()) == 'Arguments';
+
+// fallback for IE11 Script Access Denied error
+var tryGet = function (it, key) {
+  try {
+    return it[key];
+  } catch (error) { /* empty */ }
+};
+
+// getting tag from ES6+ `Object.prototype.toString`
+module.exports = function (it) {
+  var O, tag, result;
+  return it === undefined ? 'Undefined' : it === null ? 'Null'
+    // @@toStringTag case
+    : typeof (tag = tryGet(O = Object(it), TO_STRING_TAG)) == 'string' ? tag
+    // builtinTag case
+    : CORRECT_ARGUMENTS ? classofRaw(O)
+    // ES3 arguments fallback
+    : (result = classofRaw(O)) == 'Object' && typeof O.callee == 'function' ? 'Arguments' : result;
 };
 
 
@@ -2772,7 +3056,7 @@ var styles = __webpack_require__("a4b1");
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.function.name.js
 var es_function_name = __webpack_require__("b0c0");
 
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"a9201948-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/hello/src/index.vue?vue&type=template&id=c70b2038&
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"69be3a39-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/hello/src/index.vue?vue&type=template&id=c70b2038&
 var render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"cl-hello"},[_vm._v(" "+_vm._s(_vm.hello)+" ")])}
 var staticRenderFns = []
 
@@ -2984,15 +3268,18 @@ var prefixCls = 'cl-count-up';
     methodToCallOnComplete: function methodToCallOnComplete() {
       var _this = this;
 
-      this.timer = window.setInterval(function () {
+      if (this.timer) window.clearTimeout(this.timer);
+      this.timer = window.setTimeout(function () {
         _this.countUp.reset();
 
-        _this.countUp.start();
+        _this.countUp.start(_this.methodToCallOnComplete);
       }, this.interval);
     },
     upDate: function upDate(value) {
-      this.countUp.pauseResume();
-      this.countUp.update(value);
+      if (this.countUp) {
+        this.countUp.pauseResume();
+        this.countUp.update(value);
+      }
     },
     handleClick: function handleClick(ev) {
       this.$emit('click', ev);
@@ -3042,6 +3329,219 @@ count_up_src.install = function (Vue) {
 };
 
 /* harmony default export */ var count_up = (count_up_src);
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.concat.js
+var es_array_concat = __webpack_require__("99af");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.index-of.js
+var es_array_index_of = __webpack_require__("c975");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.date.to-string.js
+var es_date_to_string = __webpack_require__("0d03");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.object.to-string.js
+var es_object_to_string = __webpack_require__("d3b7");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.parse-int.js
+var es_parse_int = __webpack_require__("e25e");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.to-string.js
+var es_regexp_to_string = __webpack_require__("25f0");
+
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--12-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/scroll/src/index.vue?vue&type=script&lang=js&
+
+
+
+
+
+
+
+var VERTICAL = 'vertical';
+var HORIZONTAL = 'horizontal';
+var srcvue_type_script_lang_js_prefixCls = 'cl-scroll';
+/* harmony default export */ var scroll_srcvue_type_script_lang_js_ = ({
+  name: 'ClScroll',
+  props: {
+    tag: {
+      type: String,
+      default: 'div'
+    },
+    data: null,
+    direction: {
+      type: String,
+      default: VERTICAL,
+      validator: function validator(value) {
+        return [VERTICAL, HORIZONTAL].indexOf(value) !== -1;
+      }
+    },
+    speed: {
+      type: Number,
+      default: 40
+    }
+  },
+  watch: {
+    data: {
+      handler: function handler(value) {
+        var _this = this;
+
+        if (Object.prototype.toString.call(value) === '[object Array]') {
+          console.log(123);
+        }
+
+        this.scrollX = this.scrollY = 0;
+        this.$nextTick(function () {
+          _this.init();
+        });
+      },
+      deep: true
+    }
+  },
+  data: function data() {
+    return {
+      copyEl: false,
+      scrollY: 0,
+      scrollX: 0
+    };
+  },
+  computed: {
+    pos: function pos() {
+      return {
+        transform: "translate3d(-".concat(this.scrollX, "px, -").concat(this.scrollY, "px, 0)")
+      };
+    }
+  },
+  created: function created() {
+    this.initVal = 0;
+    this.wrapperSize = 0;
+  },
+  mounted: function mounted() {
+    this.init();
+  },
+  methods: {
+    init: function init() {
+      this.stop();
+      var el = this.$refs.clScroll;
+
+      var _getComputedStyle = getComputedStyle(el, null),
+          marginTop = _getComputedStyle.marginTop,
+          marginLeft = _getComputedStyle.marginLeft;
+
+      this.wrapperSize = this.direction === HORIZONTAL ? el.scrollWidth + parseInt(marginLeft) : el.clientHeight + parseInt(marginTop);
+
+      this._setOverflow(el.parentNode);
+
+      if (this.direction === HORIZONTAL) {
+        var parentWidth = el.parentNode.clientWidth;
+
+        if (this.wrapperSize > parentWidth) {
+          this.copyEl = true;
+          this.initVal = parseInt(marginLeft);
+
+          this._scrollXFn();
+        } else {
+          this.copyEl = false;
+          this.initVal = 0;
+        }
+      } else {
+        var parentHeight = el.parentNode.clientHeight;
+
+        if (this.wrapperSize > parentHeight) {
+          this.copyEl = true;
+          this.initVal = parseInt(marginTop);
+
+          this._scrollYFn();
+        } else {
+          this.copyEl = false;
+          this.initVal = 0;
+        }
+      }
+    },
+    stop: function stop() {
+      this.timer && window.clearInterval(this.timer);
+    },
+    goOn: function goOn() {
+      this.direction === HORIZONTAL ? this._scrollXFn() : this._scrollYFn();
+    },
+    _scrollYFn: function _scrollYFn() {
+      var _this2 = this;
+
+      this.timer = window.setInterval(function () {
+        _this2.scrollY = _this2.scrollY >= _this2.wrapperSize ? _this2.initVal : _this2.scrollY + 1;
+      }, this.speed);
+    },
+    _scrollXFn: function _scrollXFn() {
+      var _this3 = this;
+
+      this.timer = window.setInterval(function () {
+        _this3.scrollX = _this3.scrollX >= _this3.wrapperSize ? _this3.initVal : _this3.scrollX + 1;
+      }, this.speed);
+    },
+    _setOverflow: function _setOverflow(el) {
+      var _getComputedStyle2 = getComputedStyle(el, null),
+          overflow = _getComputedStyle2.overflow;
+
+      if (overflow !== 'hidden') {
+        el.style.overflow = 'hidden';
+      }
+    }
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.stop();
+  },
+  render: function render(h) {
+    var _this4 = this;
+
+    function slotsDefaultEl() {
+      if (this.copyEl) {
+        return this.$slots.default;
+      }
+    }
+
+    return h(this.tag, {
+      class: ["".concat(srcvue_type_script_lang_js_prefixCls, "-").concat(this.direction)],
+      style: this.pos,
+      ref: 'clScroll',
+      on: {
+        mouseenter: function mouseenter() {
+          _this4.stop();
+        },
+        mouseleave: function mouseleave() {
+          _this4.goOn();
+        }
+      }
+    }, [this.$slots.default, slotsDefaultEl.call(this)]);
+  }
+});
+// CONCATENATED MODULE: ./src/components/scroll/src/index.vue?vue&type=script&lang=js&
+ /* harmony default export */ var components_scroll_srcvue_type_script_lang_js_ = (scroll_srcvue_type_script_lang_js_); 
+// CONCATENATED MODULE: ./src/components/scroll/src/index.vue
+var scroll_src_render, scroll_src_staticRenderFns
+
+
+
+
+/* normalize component */
+
+var scroll_src_component = normalizeComponent(
+  components_scroll_srcvue_type_script_lang_js_,
+  scroll_src_render,
+  scroll_src_staticRenderFns,
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* harmony default export */ var scroll_src = (scroll_src_component.exports);
+// CONCATENATED MODULE: ./src/components/scroll/index.js
+
+
+
+scroll_src.install = function (Vue) {
+  Vue.component(scroll_src.name, scroll_src);
+};
+
+/* harmony default export */ var components_scroll = (scroll_src);
 // CONCATENATED MODULE: ./src/index.js
 
 
@@ -3059,13 +3559,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 
 
+
 var components = {
   Hello: hello,
-  ClCountUp: count_up
+  ClCountUp: count_up,
+  ClScroll: components_scroll
 };
 
 var install = function install(Vue) {
-  if (install.installed) return;
   Object.keys(components).forEach(function (key) {
     Vue.component(key, components[key]);
   });
@@ -3153,4 +3654,3 @@ module.exports = {
 
 /******/ });
 });
-//# sourceMappingURL=index.umd.js.map
