@@ -20,7 +20,7 @@
   },
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --dest cl-ui",
+    "build": "vue-cli-service build --dest docs",
     "lint": "vue-cli-service lint",
     "lib": "vue-cli-service build --target lib --name index --dest package src/index.js"
   },
