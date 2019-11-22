@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "private": false,
   "author": "chen129",
-  "main": "package/index.umd.min.js",
+  "main": "package/clUi.umd.min.js",
   "files": [
     "src",
     "package"
@@ -22,7 +22,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --dest docs",
     "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name index --dest package src/index.js"
+    "lib": "vue-cli-service build --target lib --name clUi --dest package src/index.js"
   },
   "dependencies": {
     "core-js": "^3.3.2",

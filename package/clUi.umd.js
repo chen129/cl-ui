@@ -1,5 +1,14 @@
-module.exports =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["clUi"] = factory();
+	else
+		root["clUi"] = factory();
+})((typeof self !== 'undefined' ? self : this), function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -3389,6 +3398,10 @@ var install = function install(Vue) {
   });
 };
 
+if (typeof window !== 'undefined' && window.Vue) {
+  install(window.Vue);
+}
+
 /* harmony default export */ var src_0 = (_objectSpread({
   install: install
 }, components));
@@ -3470,3 +3483,4 @@ module.exports = {
 /***/ })
 
 /******/ });
+});
