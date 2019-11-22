@@ -18,7 +18,7 @@ CDN
 ```javascript
 import CLUI  from '@chen129/cl-ui'
 
-import '@chen129/cl-ui/package/index.css'
+import '@chen129/cl-ui/package/clUi.css'
 
 Vue.use(CLUI)
 ```
