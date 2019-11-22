@@ -95,11 +95,13 @@ export default {
         : this._scrollYFn()
     },
     _scrollYFn () {
+      if (!this.copyEl) return
       this.timer = window.setInterval(() => {
         this.scrollY = this.scrollY >= this.wrapperSize ? this.initVal : this.scrollY + 1
       }, this.speed)
     },
     _scrollXFn () {
+      if (!this.copyEl) return
       this.timer = window.setInterval(() => {
         this.scrollX = this.scrollX >= this.wrapperSize ? this.initVal : this.scrollX + 1
       }, this.speed)

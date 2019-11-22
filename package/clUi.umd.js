@@ -3296,6 +3296,7 @@ var srcvue_type_script_lang_js_prefixCls = 'cl-scroll';
     _scrollYFn: function _scrollYFn() {
       var _this2 = this;
 
+      if (!this.copyEl) return;
       this.timer = window.setInterval(function () {
         _this2.scrollY = _this2.scrollY >= _this2.wrapperSize ? _this2.initVal : _this2.scrollY + 1;
       }, this.speed);
@@ -3303,6 +3304,7 @@ var srcvue_type_script_lang_js_prefixCls = 'cl-scroll';
     _scrollXFn: function _scrollXFn() {
       var _this3 = this;
 
+      if (!this.copyEl) return;
       this.timer = window.setInterval(function () {
         _this3.scrollX = _this3.scrollX >= _this3.wrapperSize ? _this3.initVal : _this3.scrollX + 1;
       }, this.speed);
