@@ -7,7 +7,7 @@ git config user.name "${USER_NAME}"
 git config user.email "${USER_EMAIL}"
 git init
 git add -A
-git commit -m 'deploy'
+git commit -m 'abc'
 git push -f git@github.com:chen129/cl-ui.git master:${P_BRANCH}
 
 cd -
