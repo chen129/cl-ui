@@ -16,7 +16,7 @@ function addStyleResource (rule) {
 }
 
 module.exports = {
-  publicPath: './',
+  publicPath: process.env.NODE_ENV === 'production' ? '/cl-ui/' : '/',
   productionSourceMap: false,
   pages: {
     index: {
