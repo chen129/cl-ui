@@ -6,14 +6,15 @@ cache: npm
 
 script: npm run build
 
-after_script:
-  - sh deploy.sh
-
 deploy:
 provider: pages
 skip_cleanup: true
 github_token: $GITHUB_TOKEN
 local_dir: dist
 target-branch: gh-pages
+
+after_script:
+  - sh deploy.sh
+
 on:
   branch: master
