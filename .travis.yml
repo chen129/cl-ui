@@ -9,11 +9,10 @@ script: npm run build
 after_script:
   - cd ./dist
   - git init
-  - git config user.name "${USER_NAME}"
-  - git config user.email "${USER_EMAIL}"
-  - git add .
-  - git commit -m ":rocket: 自动部署"
-  - git push --force --quiet "https://${$GITHUB_TOKEN}@${GH_REF}" master:${P_BRANCH}
+  - git add -A
+  - git commit -m "deploy"
+  - git push -f git@github.com:<USERNAME>/<REPO>.git master:gh-pages
+  - cd -
 
 deploy:
 provider: pages
