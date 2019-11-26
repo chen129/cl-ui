@@ -2,7 +2,11 @@
 
 set -e
 
+git clone https://${GH_REF} .temp
+cd .temp
 git checkout gh-pages
+cd ../
+mv .temp/.git dist
 cd dist
 git config user.name "${U_NAME}"
 git config user.email "${U_EMAIL}"
