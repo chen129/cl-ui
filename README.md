@@ -1,5 +1,5 @@
 # cl-ui
-
+[![Build Status](https://travis-ci.org/chen129/cl-ui.svg?branch=master)](https://travis-ci.org/chen129/cl-ui)
 ## :rainbow: 安装
 nmp 安装
 ```
@@ -49,5 +49,5 @@ Vue.component(Hello.name, Hello)
 Vue.use(Hello)
 ```
 ## :penguin: 文档
-- [CountUp 数字累加](./md/count-up.md)
-- [Scroll 无缝滚动](./md/scroll.md)
+- [CountUp 数字累加](./docs/count-up.md)
+- [Scroll 无缝滚动](./docs/scroll.md)
