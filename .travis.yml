@@ -4,7 +4,7 @@ node_js:
 
 cache: npm
 
-script: npm run build
+script: npm run docs:build
 
 after_script:
   - sh deploy.sh

@@ -2,7 +2,7 @@
 
 set -e
 
-cd dist
+cd docs/.vuepress/dist
 git config user.name "${USER_NAME}"
 git config user.email "${USER_EMAIL}"
 git init
