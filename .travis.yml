@@ -11,5 +11,6 @@ provider: pages
 skip_cleanup: true
 github_token: $GITHUB_TOKEN
 local_dir: dist
+target-branch: gh-pages
 on:
   branch: master
