@@ -4,8 +4,10 @@ node_js:
 
 cache: npm
 
+script: npm run build
+
 after_script:
-  - sh build/deploy-ci.sh
+  - sh deploy.sh
 
 deploy:
 provider: pages
