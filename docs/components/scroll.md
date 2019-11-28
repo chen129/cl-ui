@@ -1,12 +1,7 @@
 用于无缝滚动展示
 ### 基本用法
-```html
-<template>
-  <cl-scroll>
-    // ...
-  </cl-scroll>
-</template>
-```
+<scroll />
+
 ### 横向滚动
 ```html
 <template>

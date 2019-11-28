@@ -1,12 +1,10 @@
 用于展示数字累加动效
 ### 基本用法
-开始数值（默认为0）累加至目标数值
-```html
-<template>
-  <cl-count-up :value="4560" />
-  <cl-count-up :startVal="800" :value="4560" />
-</template>
-```
+::: tip 提示
+开始数值（默认为0）累加至目标数值  
+:::
+<count-up />
+
 ### 循环滚动
 ```html
 <template>
