@@ -38,7 +38,7 @@ export default {
     format: Function
   },
   watch: {
-    'value': 'update'
+    'value': 'upDate'
   },
   mounted () {
     this.createCountUp()

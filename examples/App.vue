@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
+    <cl-count-up :value="num" />
     <p class="title">{{ title }}</p>
   </div>
 </template>
@@ -10,8 +11,12 @@ export default {
   name: 'app',
   data () {
     return {
-      title: 'CL-UI'
+      title: 'CL-UI',
+      num: 23
     }
+  },
+  mounted () {
+    this.num = 45
   }
 }
 </script>
