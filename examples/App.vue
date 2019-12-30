@@ -16,7 +16,6 @@ export default {
     }
   },
   mounted () {
-    this.num = 45
   }
 }
 </script>
