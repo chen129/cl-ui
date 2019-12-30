@@ -18,6 +18,7 @@
     "type": "git",
     "url": "https://github.com/chen129/cl-ui"
   },
+  "homepage": "https://chen129.github.io/cl-ui/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
