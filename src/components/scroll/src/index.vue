@@ -26,12 +26,13 @@ export default {
   watch: {
     data: {
       handler (value, oldValue) {
+        if (Array.isArray(value) && Array.isArray(oldValue) && value.length === oldValue.length) return
         this.scrollX = this.scrollY = 0
         this.$nextTick(() => {
           this.init()
         })
       },
-      deep: true
+      immediate: true
     }
   },
   data () {
@@ -52,33 +53,28 @@ export default {
     this.initVal = 0
     this.wrapperSize = 0
   },
-  mounted () {
-    this.init()
-  },
   methods: {
     init () {
       this.stop()
       const el = this.$refs.clScroll
-      const { marginTop, marginLeft } = getComputedStyle(el, null)
+      const { height, width } = el.getBoundingClientRect()
       this.wrapperSize = this.direction === HORIZONTAL
-        ? el.scrollWidth + parseInt(marginLeft)
-        : el.clientHeight + parseInt(marginTop)
+        ? width
+        : height
       this._setOverflow(el.parentNode)
       if (this.direction === HORIZONTAL) {
-        let parentWidth = el.parentNode.clientWidth
+        let parentWidth = el.parentNode.getBoundingClientRect().width
         if (this.wrapperSize > parentWidth) {
           this.copyEl = true
-          this.initVal = parseInt(marginLeft)
           this._scrollXFn()
         } else {
           this.copyEl = false
           this.initVal = 0
         }
       } else {
-        let parentHeight = el.parentNode.clientHeight
+        let parentHeight = el.parentNode.getBoundingClientRect().height
         if (this.wrapperSize > parentHeight) {
           this.copyEl = true
-          this.initVal = parseInt(marginTop)
           this._scrollYFn()
         } else {
           this.copyEl = false

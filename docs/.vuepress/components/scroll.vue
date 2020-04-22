@@ -3,7 +3,7 @@
     <div class="component-wrapper">
       <div class="component-wrapper-demo demo-scroll">
         <div class="demo-scroll-wrapper">
-          <cl-scroll>
+          <cl-scroll :data="list">
             <ul class="list">
               <li class="list-item">无缝滚动 1</li>
               <li class="list-item">无缝滚动 2</li>
@@ -36,6 +36,7 @@ export default {
   mixins: [mixin],
   data () {
     return {
+      list: [],
       codeStr: `<cl-scroll>
           <ul class="list">
             <li class="list-item">无缝滚动 1</li>
@@ -57,7 +58,7 @@ export default {
 .demo-scroll-wrapper {
   height: 300px;
   .list, .list-item {
-    margin: 0;
+    margin: 20px;
     padding: 0;
     list-style: none;
   }

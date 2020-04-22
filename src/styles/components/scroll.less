@@ -1,6 +1,21 @@
 .cl-scroll {
+  &-vertical {
+    animation: cl-scroll-vertical-animation infinite linear;
+  }
   &-horizontal {
     display: inline-block;
     white-space: nowrap;
+    animation: cl-scroll-horizontal-animation infinite linear;
+  }
+}
+
+@keyframes cl-scroll-vertical-animation {
+  100% {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+@keyframes cl-scroll-horizontal-animation {
+  100% {
+    transform: translate3d(-100%, 0, 0);
   }
 }

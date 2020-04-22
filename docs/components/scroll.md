@@ -2,7 +2,7 @@
 ### 基本用法
 <scroll />
 
-### 横向滚动
+### 横向滚动(不推荐使用,可使用 [Notice](./notice.md) 代替)
 ```html
 <template>
   <cl-scroll direction="horizontal">

@@ -3,11 +3,13 @@ import './styles/index.less'
 import Hello from './components/hello'
 import ClCountUp from './components/count-up'
 import ClScroll from './components/scroll'
+import ClNotice from './components/notice'
 
 const components = {
   Hello,
   ClCountUp,
-  ClScroll
+  ClScroll,
+  ClNotice
 }
 
 const install = function (Vue) {

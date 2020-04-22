@@ -1,0 +1,28 @@
+.cl-notice {
+  display: flex;
+  align-items: center;
+  padding: 0 25px;
+  width: 100%;
+  &-icon {
+    min-width: 34px;
+  }
+  &-wrap {
+    flex: 1;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    height: 22px;
+    &-message {
+      position: absolute;
+      font-size: 16px;
+      color: #606266;
+      animation: cl-notice-animation infinite linear;
+    }
+  }
+}
+
+@keyframes cl-notice-animation {
+  100% {
+    transform: translate3d(-100%, 0, 0);
+  }
+}

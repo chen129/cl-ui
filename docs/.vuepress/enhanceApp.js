@@ -1,5 +1,6 @@
 import './public/style/index.less'
 import CLUI from '../../src'
+import 'highlight.js/styles/github.css'
 
 export default ({
   Vue, // VuePress 正在使用的 Vue 构造函数
